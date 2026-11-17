@@ -24,10 +24,9 @@ Ejecuta únicamente estos comandos desde la raíz del proyecto:
 
 # Arquitectura y Estructura de Carpetas
 
-Crea y respeta esta estructura interna dentro de `src/`:
+Crea y respeta esta estructura en la raíz del proyecto (al mismo nivel que `app/`):
 
 ```text
-src/
 ├── app/
 │   ├── (public)/                  # Landing page pública de la cafetería (Server Components)
 │   │   ├── page.tsx               # Hero, identidad de marca, catálogo de productos y contacto
@@ -84,8 +83,8 @@ src/
   - Verifica la sesión activa y el rol dentro de cada Server Action antes de mutar datos; nunca confíes solo en el middleware o en ocultar botones en la UI.
   - Restringe el rol `EMPLOYEE` exclusivamente a operaciones sobre productos. Rechaza inmediatamente cualquier acción en usuarios o auditoría si `role !== 'ADMIN'`.
 - **Animaciones Ligeras con GSAP:**
-  - Usa exclusivamente `@gsap/react` (`useGSAP`) dentro de `src/components/animations/` para asegurar limpieza automática del contexto y evitar fugas de memoria.
-  - Registra plugins (`ScrollTrigger`) únicamente en los componentes que los requieran; nunca los importes en `src/app/layout.tsx`.
+  - Usa exclusivamente `@gsap/react` (`useGSAP`) dentro de `components/animations/` para asegurar limpieza automática del contexto y evitar fugas de memoria.
+  - Registra plugins (`ScrollTrigger`) únicamente en los componentes que los requieran; nunca los importes en `app/layout.tsx`.
   - Anima únicamente propiedades aceleradas por GPU (`transform`, `opacity`, `clip-path`). Prohibido animar propiedades de layout (`width`, `height`, `top`, `left`, `margin`).
   - Envuelve las animaciones de desplazamiento en `gsap.matchMedia()` para respetar `prefers-reduced-motion`.
 - **TypeScript Estricto y Validación:**
@@ -99,6 +98,7 @@ src/
 
 - **NUNCA ejecutar `pnpm build`** ni generar compilaciones de producción hasta que el usuario lo ordene explícitamente al finalizar el proyecto.
 - **Usar exclusivamente `pnpm`** para instalar dependencias o ejecutar scripts (prohibido usar `npm`, `npx`, `yarn` o `bun`).
+- **Seguridad de entorno:** Nunca leas ni modifiques archivos `.env` o `.env.local`. Si añades variables de entorno nuevas, documéntalas únicamente en `.env.example` con valores ficticios.
 - **Validar cambios solo con comprobación estática:** Tras escribir o modificar código, ejecuta únicamente `pnpm exec tsc --noEmit` y `pnpm lint`.
 - **Auditoría obligatoria:** Nunca crees una Server Action de creación, edición o eliminación (de productos o usuarios) sin invocar `createAuditLog()` con el identificador del usuario activo, acción, entidad afectada y resumen del cambio.
 - **Mantener el bundle ligero:** No instales librerías de UI pesadas (MUI, Ant Design, Chakra) ni librerías de animación adicionales (Framer Motion); usa únicamente Tailwind CSS y GSAP modular.
