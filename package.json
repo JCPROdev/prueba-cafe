@@ -6,10 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
+    "@prisma/adapter-pg": "7.10.1",
     "@prisma/client": "^7.10.1",
     "@sanity/client": "^8.16.0",
     "@sanity/image-url": "^2.2.0",
@@ -23,6 +25,7 @@
     "prisma": "7.10.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "server-only": "0.0.1",
     "sonner": "^2.0.8",
     "tailwind-merge": "^3.7.0",
     "zod": "^4.6.7"
@@ -35,6 +38,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
     "tailwindcss": "4.3.3",
+    "tsx": "4.23.15",
     "typescript": "^5"
   },
   "packageManager": "pnpm@10.29.3"

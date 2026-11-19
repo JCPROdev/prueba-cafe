@@ -7,6 +7,7 @@ import {
   createProductAction,
   updateProductAction,
 } from "@/lib/actions/product.actions";
+import { MAX_IMAGE_BYTES, MAX_IMAGE_MB } from "@/lib/upload";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import type { ActionResult } from "@/types/actions";
@@ -35,7 +36,18 @@ export function ProductForm({ categories, product }: ProductFormProps) {
   }, [state, product, router]);
 
   return (
-    <form action={action} className="flex max-w-xl flex-col gap-4">
+    <form
+      action={action}
+      onSubmit={(e) => {
+        const file = new FormData(e.currentTarget).get("image");
+        if (file instanceof File && file.size > MAX_IMAGE_BYTES) {
+          e.preventDefault();
+          toast.error(
+            `No se pueden subir imágenes de más de ${MAX_IMAGE_MB} MB (la seleccionada pesa ${(file.size / (1024 * 1024)).toFixed(1)} MB).`,
+          );
+        }
+      }}
+      className="flex max-w-xl flex-col gap-4">
       {product && <input type="hidden" name="id" value={product._id} />}
 
       <Input label="Nombre" name="name" required defaultValue={product?.name} />

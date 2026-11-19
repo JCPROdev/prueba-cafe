@@ -13,12 +13,17 @@ const projectId = requireEnv("NEXT_PUBLIC_SANITY_PROJECT_ID");
 const dataset = requireEnv("NEXT_PUBLIC_SANITY_DATASET");
 const apiVersion = process.env.NEXT_PUBLIC_SANITY_API_VERSION ?? "2025-01-01";
 
-/** Cliente público de lectura (CDN, sin token). */
+/**
+ * Cliente de lectura sin CDN (sin token). El CDN de Sanity puede devolver datos
+ * anteriores a una escritura durante varios minutos, lo que dejaba productos
+ * obsoletos tanto en el panel como en la landing (cacheada con "use cache").
+ * La caché de Next.js ya gestiona el rendimiento y se invalida con updateTag.
+ */
 export const sanityClient = createClient({
   projectId,
   dataset,
   apiVersion,
-  useCdn: true,
+  useCdn: false,
 });
 
 /** Cliente privado de escritura. Solo usar desde Server Actions. */

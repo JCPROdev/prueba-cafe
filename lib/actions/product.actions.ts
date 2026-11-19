@@ -4,13 +4,13 @@ import { randomUUID } from "node:crypto";
 import { revalidatePath, updateTag } from "next/cache";
 import { requireSession } from "@/lib/auth";
 import { createAuditLog } from "@/lib/audit";
+import { MAX_IMAGE_BYTES, MAX_IMAGE_MB } from "@/lib/upload";
 import { sanityWriteClient } from "@/lib/sanity/client";
 import { PRODUCT_TAG } from "@/lib/sanity/queries";
 import { slugify } from "@/lib/utils";
 import { productSchema, productUpdateSchema } from "@/lib/validations";
 import type { ActionResult } from "@/types/actions";
 
-const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 
 type ProductResult = ActionResult<{ id: string }>;
 
@@ -63,7 +63,7 @@ export async function createProductAction(
   }
   const image = readImage(formData);
   if (image === "invalid") {
-    return { success: false, error: "Imagen inválida (máx. 4 MB)" };
+    return { success: false, error: `Imagen inválida (máx. ${MAX_IMAGE_MB} MB)` };
   }
 
   try {
@@ -93,7 +93,8 @@ export async function createProductAction(
     });
     revalidateProducts();
     return { success: true, data: { id: doc._id } };
-  } catch {
+  } catch (error) {
+    console.error("[createProductAction]", error);
     return { success: false, error: "No se pudo crear el producto" };
   }
 }
@@ -114,7 +115,7 @@ export async function updateProductAction(
   }
   const image = readImage(formData);
   if (image === "invalid") {
-    return { success: false, error: "Imagen inválida (máx. 4 MB)" };
+    return { success: false, error: `Imagen inválida (máx. ${MAX_IMAGE_MB} MB)` };
   }
 
   try {
@@ -151,7 +152,8 @@ export async function updateProductAction(
     });
     revalidateProducts();
     return { success: true, data: { id } };
-  } catch {
+  } catch (error) {
+    console.error("[updateProductAction]", error);
     return { success: false, error: "No se pudo actualizar el producto" };
   }
 }
@@ -186,7 +188,8 @@ export async function deleteProductAction(
     });
     revalidateProducts();
     return { success: true, data: { id } };
-  } catch {
+  } catch (error) {
+    console.error("[deleteProductAction]", error);
     return { success: false, error: "No se pudo eliminar el producto" };
   }
 }

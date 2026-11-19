@@ -1,6 +1,7 @@
 import { Suspense, type ReactNode } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { auth } from "@/lib/auth";
 import { logoutAction } from "@/lib/actions/auth.actions";
 import type { Role } from "@/types/auth";
@@ -19,6 +20,8 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 async function AdminSidebar() {
+  // Marca el componente como dinámico antes de que auth() use valores aleatorios.
+  await connection();
   const session = await auth();
   if (!session?.user) redirect("/login");
   const { role, name } = session.user;

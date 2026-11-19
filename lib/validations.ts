@@ -25,5 +25,28 @@ export const productUpdateSchema = productSchema.extend({
 
 export type ProductInput = z.infer<typeof productSchema>;
 export type ProductUpdateInput = z.infer<typeof productUpdateSchema>;
+const roleSchema = z.enum(["ADMIN", "EMPLOYEE"], "Rol inválido");
+
+export const userFormCreateSchema = userCreateSchema.extend({ role: roleSchema });
+
+export const userFormUpdateSchema = z.object({
+  id: z.string().min(1, "ID requerido"),
+  name: z.string().trim().min(2, "Nombre requerido"),
+  email: z.email("Correo inválido").trim().toLowerCase(),
+  // Vacío = conservar la contraseña actual.
+  password: z
+    .string()
+    .refine((v) => v === "" || v.length >= 8, "Mínimo 8 caracteres"),
+  role: roleSchema,
+});
+
+export const auditFilterSchema = z.object({
+  entity: z.enum(["PRODUCT", "USER"]).optional().catch(undefined),
+  action: z.enum(["CREATE", "UPDATE", "DELETE", "LOGIN"]).optional().catch(undefined),
+  userId: z.string().trim().min(1).optional().catch(undefined),
+  from: z.iso.date().optional().catch(undefined),
+  to: z.iso.date().optional().catch(undefined),
+});
+
 export type LoginInput = z.infer<typeof loginSchema>;
 export type UserCreateInput = z.infer<typeof userCreateSchema>;

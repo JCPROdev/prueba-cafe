@@ -1,6 +1,7 @@
+import { cacheLife, cacheTag } from "next/cache";
 import { defineQuery } from "next-sanity";
 import { sanityClient } from "@/lib/sanity/client";
-import type { BrandInfo, Product } from "@/types/sanity";
+import type { BrandInfo, Category, Product } from "@/types/sanity";
 
 export const PRODUCT_TAG = "products";
 export const BRAND_TAG = "brand";
@@ -37,7 +38,19 @@ export const BRAND_QUERY = defineQuery(`*[_type == "brand"][0]{
   schedule
 }`);
 
-export function getProducts(): Promise<Product[]> {
+export const CATEGORIES_QUERY = defineQuery(
+  `*[_type == "category"] | order(title asc){ _id, title, "slug": slug.current }`,
+);
+
+export function getCategories(): Promise<Category[]> {
+  return sanityClient.fetch<Category[]>(
+    CATEGORIES_QUERY,
+    {},
+    { next: { tags: [PRODUCT_TAG] } },
+  );
+}
+
+export function getProducts():Promise<Product[]> {
   return sanityClient.fetch<Product[]>(
     PRODUCTS_QUERY,
     {},
@@ -59,4 +72,24 @@ export function getBrandInfo(): Promise<BrandInfo | null> {
     {},
     { next: { tags: [BRAND_TAG] } },
   );
+}
+
+export interface LandingData {
+  brand: BrandInfo | null;
+  products: Product[];
+  categories: Category[];
+}
+
+/** Datos de la landing, cacheados e invalidados por las etiquetas de marca/productos. */
+export async function getCachedLandingData(): Promise<LandingData> {
+  "use cache";
+  cacheTag(PRODUCT_TAG, BRAND_TAG);
+  cacheLife("hours");
+
+  const [brand, products, categories] = await Promise.all([
+    getBrandInfo(),
+    getProducts(),
+    getCategories(),
+  ]);
+  return { brand, products, categories };
 }
